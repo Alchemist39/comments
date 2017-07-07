@@ -63,6 +63,8 @@
 				'comment' => $_POST['comment']
 			));
 			header("refresh:2;url=index.php");
+			setcookie('name', $_POST['name'], time()+86400);
+			setcookie('email', $_POST['email'], time()+86400);
 			?>
 				<p>Сообщение отправлено</p>
 				<a href='index.php'>Если перенаправление не сработало нажмите здесь</a>
@@ -71,11 +73,19 @@
 			$totalError = $nameError . ' ' . $emailError . ' ' . $commentError . ' ' . $privietError;
 			if($nameError) {
 				$error = 'Ошибка насяльника' . ' ' . $totalError;
-			} else if($emailError) {
-				$error = 'Ошибка насяльника' . ' ' . $totalError;
-			} else if($commentError) {
+			}
+			if($emailError) {
 				$error = 'Ошибка насяльника' . ' ' . $totalError;
 			}
+			if($commentError) {
+				$error = 'Ошибка насяльника' . ' ' . $totalError;
+			}
+
+			if($error) { 
+				?><div class="error"><?=$error ?></div>
+			<?php
+			} 
 		}
+
 	}
 ?>
