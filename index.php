@@ -7,7 +7,6 @@
 	</head>
 	<body>
 		<?php 
-
 			function checkName() {
 				$nameLength = strlen($_POST['name']);
 				$error = '';
@@ -45,22 +44,21 @@
 				return $error;
 			}
 
-			$link = mysql_connect('localhost', 'root', '');
-			if (!$link) {
-				die('Ошибка соединения: ' . mysql_error());
-			}
+				$host = 'localhost';
+				$db   = 'comments';
+				$user = 'root';
+				$pass = '';
+				$charset = 'utf8';
+				$dsn = 'mysql:host=' . $host . ';dbname=' . $db . ';charset=' . $charset;
+				$pdo = new PDO($dsn, $user, $pass);
 
-			$db_selected = mysql_select_db('comments', $link);
-			if (!$db_selected) {
-				die ('Can\'t use foo : ' . mysql_error());
-			}
 			if($_POST['name']) {
 				$nameError = checkName();
 				$emailError = checkEmail();
 				$commentError = checkComment();
 
 				if(!$nameError && !$emailError && !$commentError) {
-					mysql_query("
+					$queryTemplate = $pdo->prepare("
 						INSERT INTO `comments` (
 							`name` ,
 							`email` ,
@@ -68,12 +66,17 @@
 							`date`
 						)
 						VALUES (
-							'" . mysql_real_escape_string($_POST["name"]) . "',  
-							'" . mysql_real_escape_string($_POST["email"]) . "',  
-							'" . mysql_real_escape_string($_POST["comment"]) . "', 
-							NOW( )
+							:name,  
+							:email,  
+							:comment, 
+							NOW()
 						);
 					");
+					$queryTemplate->execute(array(
+						'name' => $_POST['name'],
+						'email' => $_POST['email'],
+						'comment' => $_POST['comment']
+					));
 				} else {
 					$totalError = $nameError . ' ' . $emailError . ' ' . $commentError . ' ' . $privietError;
 					if($nameError) {
@@ -85,20 +88,17 @@
 					}
 				}
 			}
-
-			$result = mysql_query("
-				SELECT * 
-				FROM  `comments`
-			");
-			if (!$result) {
-				die('Неверный запрос: ' . mysql_error());
-			}
 		?>
 		<div class="container">
 		<?php
-			while ($row = mysql_fetch_assoc($result)) {
-		?>	
-			<span class="right">
+			$stmt = $pdo->query("
+				SELECT *
+				FROM comments
+				");
+			while ($row = $stmt->fetch())
+			{
+		?>
+		   <span class="right">
 				<?=$row['id'] ?>
 			</span>
 			
@@ -108,11 +108,10 @@
 			<p class="text">
 				<?=$row['comment'] ?>
 			</p>
-
 		<?php
-			}
-			mysql_close($link);
-		?>
+		}
+			
+		?>	
 		<?php if($error) { ?> 
 			<div class="error"><?=$error ?></div>
 		<?php } ?>
