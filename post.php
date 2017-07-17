@@ -1,4 +1,4 @@
-<?php 
+<?php
 	require_once('/config.php');
 	function checkName() {
 		$nameLength = strlen($_POST['name']);
@@ -63,8 +63,8 @@
 				'comment' => $_POST['comment']
 			));
 			header("refresh:2;url=index.php");
-			setcookie('name', $_POST['name'], time()+86400);
-			setcookie('email', $_POST['email'], time()+86400);
+			$_SESSION['email'] = $_POST['email'];
+			
 			?>
 				<p>Сообщение отправлено</p>
 				<a href='index.php'>Если перенаправление не сработало нажмите здесь</a>
@@ -89,3 +89,6 @@
 
 	}
 ?>
+
+
+http://wpress.local/wp-admin/install.php
